@@ -16,15 +16,25 @@
  *  MA 02110-1301, USA.
  */
 
-#ifndef __MATCHER_AC_H__
-#define __MATCHER_AC_H__
+#ifndef __NODE_LIST_H__
+#define __NODE_LIST_H__
 
-typedef struct _AC_PATTERN AC_PATTERN;
-struct _AC_PATTERN {
-};
+#include <stdint.h>
+#include "ac-backend.h"
 
-typedef struct _AC_SIGNATURE AC_SIGNATURE;
-struct _AC_SIGNATURE {
-};
+typedef struct AC_LIST_NODE_ {
+    int id, type, depth;
 
-#endif /* __MATCHER_AC_H__ */
+    /* patterns */
+    AC_PATTERN *patterns;
+    uint32_t patt_cnt;
+
+    /* paths */
+    struct AC_LIST_NODE_ *next;
+    struct AC_LIST_NODE_ *down;
+
+    struct AC_LIST_NODE_ *fail;
+} AC_LIST_NODE;
+
+
+#endif /* __NODE_LIST_H__ */

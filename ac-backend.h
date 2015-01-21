@@ -16,15 +16,11 @@
  *  MA 02110-1301, USA.
  */
 
-#ifndef __MATCHER_AC_H__
-#define __MATCHER_AC_H__
+#ifndef __AC_BACKEND_H__
+#define __AC_BACKEND_H__
 
-typedef struct _AC_PATTERN AC_PATTERN;
-struct _AC_PATTERN {
-};
+typedef struct AC_PATTERN_ {
+    char *pattern;
+} AC_PATTERN;
 
-typedef struct _AC_SIGNATURE AC_SIGNATURE;
-struct _AC_SIGNATURE {
-};
-
-#endif /* __MATCHER_AC_H__ */
+#endif /* __AC_BACKEND_H__ */
