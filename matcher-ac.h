@@ -19,6 +19,16 @@
 #ifndef __MATCHER_AC_H__
 #define __MATCHER_AC_H__
 
+typedef struct _AC_NODE AC_NODE;
+struct _AC_NODE {
+};
 
+typedef struct _AC_PATTERN AC_PATTERN;
+struct _AC_PATTERN {
+};
+
+typedef struct _AC_SIGNATURE AC_SIGNATURE;
+struct _AC_SIGNATURE {
+};
 
 #endif /* __MATCHER_AC_H__ */
