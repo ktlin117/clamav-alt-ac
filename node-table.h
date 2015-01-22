@@ -23,17 +23,26 @@
 #include "ac-backend.h"
 
 typedef struct AC_TABLE_NODE_ {
-    int id, type, depth;
+    int id, depth;
+    uint8_t mode;
 
     /* patterns */
     AC_PATTERN *patterns;
     uint32_t patt_cnt;
 
     /* paths */
-    struct AC_TABLE_NODE_ *table;
-    uint16_t tbl_sz;
+    struct AC_TABLE_NODE_ **table;
+    uint16_t tbl_cnt;
 
     struct AC_TABLE_NODE_ *fail;
 } AC_TABLE_NODE;
+
+AC_TABLE_NODE *new_node(uint8_t mode);
+AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge);
+AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge);
+void delete_node(AC_TABLE_NODE *node);
+void delete_node_r(AC_TABLE_NODE *node);
+void print_node(AC_TABLE_NODE *node, int tab);
+void print_node_r(AC_TABLE_NODE *node, int tab);
 
 #endif /* __NODE_TABLE_H__ */

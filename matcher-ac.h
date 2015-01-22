@@ -19,12 +19,26 @@
 #ifndef __MATCHER_AC_H__
 #define __MATCHER_AC_H__
 
-typedef struct _AC_PATTERN AC_PATTERN;
-struct _AC_PATTERN {
-};
+#include "node-table.h"
+#include "node-list.h"
 
-typedef struct _AC_SIGNATURE AC_SIGNATURE;
-struct _AC_SIGNATURE {
-};
+#define AC_TABLE 0x00
+#define AC_LIST  0x01
+#define AC_CASE_SENSITIVE 0x02
+
+typedef struct AC_MATCHER_ {
+    uint8_t mode, mindepth, maxdepth;
+
+    union root {
+        AC_TABLE_NODE *tbl;
+        AC_LIST_NODE *list;
+    };
+    union all {
+        AC_TABLE_NODE *tbl;
+        AC_LIST_NODE *list;
+    };
+} AC_MATCHER;
+
+int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode);
 
 #endif /* __MATCHER_AC_H__ */

@@ -16,24 +16,10 @@
  *  MA 02110-1301, USA.
  */
 
-#ifndef __NODE_LIST_H__
-#define __NODE_LIST_H__
+#ifndef __RETCODES_H__
+#define __RETCODES_H__
 
-#include <stdint.h>
-#include "ac-backend.h"
+#define RET_SUCCESS 0
+#define ERR_EMEM    1
 
-typedef struct AC_LIST_NODE_ {
-    int id, type, depth;
-
-    /* patterns */
-    AC_PATTERN *patterns;
-    uint32_t patt_cnt;
-
-    /* paths */
-    struct AC_LIST_NODE_ *next;
-    struct AC_LIST_NODE_ *down;
-
-    struct AC_LIST_NODE_ *fail;
-} AC_LIST_NODE;
-
-#endif /* __NODE_LIST_H__ */
+#endif
