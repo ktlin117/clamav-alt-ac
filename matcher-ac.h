@@ -20,25 +20,21 @@
 #define __MATCHER_AC_H__
 
 #include "node-table.h"
-#include "node-list.h"
-
-#define AC_TABLE 0x00
-#define AC_LIST  0x01
-#define AC_CASE_SENSITIVE 0x02
 
 typedef struct AC_MATCHER_ {
     uint8_t mode, mindepth, maxdepth;
 
-    union root {
-        AC_TABLE_NODE *tbl;
-        AC_LIST_NODE *list;
-    };
-    union all {
-        AC_TABLE_NODE *tbl;
-        AC_LIST_NODE *list;
-    };
+    AC_TABLE_NODE *root;
+    /*
+    AC_TABLE_NODE **all_nodes;
+    uint32_t node_cnt;
+    */
 } AC_MATCHER;
 
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode);
+int ac_add_pattern(AC_MATCHER *matcher, const char *pattern);
+int ac_resolve_links(AC_MATCHER *matcher);
+int ac_free(AC_MATCHER *matcher);
+void ac_print(AC_MATCHER *matcher);
 
 #endif /* __MATCHER_AC_H__ */

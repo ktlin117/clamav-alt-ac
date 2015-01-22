@@ -55,6 +55,7 @@ AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge)
             return NULL; //OOM
 
         node->depth = parent->depth+1;
+        node->fail = parent;
 
         parent->table[edge] = node;
     }
