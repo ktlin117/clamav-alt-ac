@@ -18,3 +18,6 @@ $(TARGET): $(OBJECTS)
 
 clean:
 	rm -f *.o $(TARGET)
+
+clean-all: clean
+	rm -rf *~ *#
