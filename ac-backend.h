@@ -23,4 +23,7 @@ typedef struct AC_PATTERN_ {
     char *pattern;
 } AC_PATTERN;
 
+AC_PATTERN *compile_pattern(const char *string);
+int verify_pattern(AC_PATTERN *pattern);
+
 #endif /* __AC_BACKEND_H__ */

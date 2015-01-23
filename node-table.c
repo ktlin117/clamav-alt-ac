@@ -55,6 +55,7 @@ AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge)
             return NULL; //OOM
 
         node->depth = parent->depth+1;
+        node->value = edge;
         node->fail = parent;
 
         parent->table[edge] = node;
@@ -100,9 +101,10 @@ void print_node(AC_TABLE_NODE *node, int tab)
         return;
     }
 
-    printf("%sNode ID: %i\n", tabs, node->id);
+    printf("%sNode ID: %i%s\n", tabs, node->id, (node->id) ? "" : "(root)");
     printf("%s\tdepth: %i\n", tabs, node->depth);
     printf("%s\tmode:  0x%02x\n", tabs, node->mode);
+    printf("%s\tvalue: %u[%c]\n", tabs, node->value, node->value);
 
     /* patterns */
     printf("%sPatterns: %u\n", tabs, node->patt_cnt);

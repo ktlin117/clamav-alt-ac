@@ -6,12 +6,11 @@ int main()
     AC_MATCHER matcher;
 
     ac_init(&matcher, 0, 0, 0);
-    ac_add_pattern(&matcher, "clamav");
-    ac_add_pattern(&matcher, "steve");
-    ac_add_pattern(&matcher, "calmav");
-    ac_add_pattern(&matcher, "clambv");
-    ac_add_pattern(&matcher, "clamAV");
-    ac_add_pattern(&matcher, "clamAVBC");
+    ac_add_pattern(&matcher, "take");
+    ac_add_pattern(&matcher, "fast");
+    ac_add_pattern(&matcher, "soft");
+
+    ac_resolve_links(&matcher);
 
     ac_print(&matcher);
     ac_free(&matcher);

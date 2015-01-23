@@ -25,6 +25,7 @@
 typedef struct AC_TABLE_NODE_ {
     int id, depth;
     uint8_t mode;
+    uint16_t value;
 
     /* patterns */
     AC_PATTERN *patterns;
