@@ -19,6 +19,7 @@
 #ifndef __MATCHER_AC_H__
 #define __MATCHER_AC_H__
 
+#include <stdint.h>
 #include "node-table.h"
 
 typedef struct AC_MATCHER_ {
@@ -34,6 +35,7 @@ typedef struct AC_MATCHER_ {
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode);
 int ac_add_pattern(AC_MATCHER *matcher, const char *pattern);
 int ac_resolve_links(AC_MATCHER *matcher);
+int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen);
 int ac_free(AC_MATCHER *matcher);
 void ac_print(AC_MATCHER *matcher);
 

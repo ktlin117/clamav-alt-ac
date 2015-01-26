@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,53 @@ int ac_resolve_links(AC_MATCHER *matcher)
 
                 fail = fail->fail; /* skips first fail node (parent) */
             }
+        }
+    }
+
+    return 0;
+}
+
+int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
+{
+    unsigned int i, j;
+    AC_TABLE_NODE *current = matcher->root, *others;
+
+    for (i = 0; i < buflen; ++i) {
+        printf("ac_scanbuf: current node: %d\n", current->id);
+
+        /* advance the node or fail */
+        if (current->table[buffer[i]]) {
+            current = current->table[buffer[i]];
+        } else {
+            while (current->fail) {
+                current = current->fail;
+                if (current->table[buffer[i]]) {
+                    current = current->table[buffer[i]];
+                    break;
+                }
+            }
+            continue;
+        }
+
+        printf("ac_scanbuf: move to node: %d\n", current->id);
+
+        /* check the patterns Mason! */
+        if (current->patt_cnt) {
+            printf("FOUND PATTERNS:\n");
+            for (j = 0; j < current->patt_cnt; ++j) {
+                print_pattern(current->patterns[j], 1);
+            }
+        }
+        /* check the fail nodes patterns too! */
+        others = current->fail;
+        while (others) {
+            if (others->patt_cnt) {
+                printf("FOUND OTHER PATTERNS:\n");
+                for (j = 0; j < others->patt_cnt; ++j) {
+                    print_pattern(others->patterns[j], 1);
+                }
+            }
+            others = others->fail;
         }
     }
 

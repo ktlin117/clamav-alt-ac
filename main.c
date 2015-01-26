@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "matcher-ac.h"
 #include "node-table.h"
 
@@ -7,12 +8,15 @@ int main()
 
     ac_init(&matcher, 0, 0, 0);
     ac_add_pattern(&matcher, "take");
-    ac_add_pattern(&matcher, "fast");
-    ac_add_pattern(&matcher, "soft");
+    //ac_add_pattern(&matcher, "fast");
+    //ac_add_pattern(&matcher, "soft");
+    ac_add_pattern(&matcher, "ake");
 
     ac_resolve_links(&matcher);
-
     ac_print(&matcher);
+
+    ac_scanbuf(&matcher, (const uint8_t *)"take", 4);
+
     ac_free(&matcher);
 
     /** Node Testing **/
