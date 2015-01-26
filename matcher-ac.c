@@ -3,7 +3,10 @@
 #include <string.h>
 #include "matcher-ac.h"
 #include "node-table.h"
+#include "ac-backend.h"
 #include "queue.h"
+
+#define TRIGLENCAP 256
 
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode)
 {
@@ -18,20 +21,27 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mod
     return 0;
 }
 
+// TODO - handle intermitten NULL characters, is this to be hex-encoded?
 int ac_add_pattern(AC_MATCHER *matcher, const char *pattern)
 {
     int i;
+    char trigger[TRIGLENCAP];
     AC_TABLE_NODE *track = matcher->root;
+    AC_PATTERN *ac_pattern;
 
-    for (i = 0; i < strlen(pattern); ++i) {
-        track = get_or_insert_node(track, pattern[i]);
+    ac_pattern = compile_pattern(pattern, trigger, TRIGLENCAP);
+    if (!ac_pattern) {
+        return -4; // critical error
+    }
+
+    for (i = 0; i < strlen(trigger); ++i) {
+        track = get_or_insert_node(track, trigger[i]);
         if (!track)
             return -2; // NODAL ISSUE, most likely OOM
     }
 
-    /* INSERT PATTERN HERE! */
-
-    return 0;
+    // add pattern to final node
+    return add_patt_node(track, ac_pattern); // TODO - check the error codes here?
 }
 
 int ac_resolve_links(AC_MATCHER *matcher)
@@ -55,6 +65,7 @@ int ac_resolve_links(AC_MATCHER *matcher)
         track = STAILQ_FIRST(&head);
         current = track->node;
         STAILQ_REMOVE_HEAD(&head, entries);
+        free(track);
 
         printf("QUEUE ID: %d\n", current->id);
 

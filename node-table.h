@@ -28,7 +28,7 @@ typedef struct AC_TABLE_NODE_ {
     uint16_t value;
 
     /* patterns */
-    AC_PATTERN *patterns;
+    AC_PATTERN **patterns;
     uint32_t patt_cnt;
 
     /* paths */
@@ -41,6 +41,9 @@ typedef struct AC_TABLE_NODE_ {
 AC_TABLE_NODE *new_node(uint8_t mode);
 AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge);
 AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge);
+
+int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern);
+
 void delete_node(AC_TABLE_NODE *node);
 void delete_node_r(AC_TABLE_NODE *node);
 void print_node(AC_TABLE_NODE *node, int tab);

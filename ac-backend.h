@@ -19,11 +19,19 @@
 #ifndef __AC_BACKEND_H__
 #define __AC_BACKEND_H__
 
+typedef int (*verifier_cb)(); //trival verifer, add addtitional junk later
+// verifiers return 1 (CL_VIRUS) on match, 0 on no match, anything else is an error
+
+int default_verifier();
+
 typedef struct AC_PATTERN_ {
     char *pattern;
+    verifier_cb verify;
 } AC_PATTERN;
 
-AC_PATTERN *compile_pattern(const char *string);
-int verify_pattern(AC_PATTERN *pattern);
+AC_PATTERN *compile_pattern(const char *string, char *trigger, unsigned int trig_len);
+// string = to be parsed string, trigger is submission to ac tree, trig_len is max storage
+void print_pattern(AC_PATTERN *pattern, int tab);
+int free_pattern(AC_PATTERN *pattern);
 
 #endif /* __AC_BACKEND_H__ */

@@ -64,10 +64,33 @@ AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge)
     return node;
 }
 
+int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern)
+{
+    AC_PATTERN **new_patterns;
+
+    if (!node || !pattern)
+        return -2; // INVALID ARG
+
+    node->patt_cnt++;
+    new_patterns = realloc(node->patterns, node->patt_cnt * sizeof(AC_PATTERN *));
+    if (!new_patterns)
+        return -1; // OOM
+    new_patterns[node->patt_cnt-1] = pattern;
+
+    node->patterns = new_patterns;
+    return 0;
+}
+
 void delete_node(AC_TABLE_NODE *node)
 {
+    int i;
     /* patterns */
-    //TODO - call pattern deleter
+    if (node->patt_cnt > 0) {
+        for (i = 0; i < node->patt_cnt; ++i) {
+            free_pattern(node->patterns[i]);
+        }
+        free(node->patterns);
+    }
 
     /* paths */
     free(node->table);
@@ -108,7 +131,8 @@ void print_node(AC_TABLE_NODE *node, int tab)
 
     /* patterns */
     printf("%sPatterns: %u\n", tabs, node->patt_cnt);
-    //TODO - call pattern printer
+    for (i = 0; i < node->patt_cnt; ++i)
+        print_pattern(node->patterns[i], tab+1);
 
     /* paths */
     if (node->table) {

@@ -1,7 +1,7 @@
 CC=gcc
 CCFLAGS=-Wall -g -O0
 LDFLAGS=
-SOURCES=matcher-ac.c node-table.c main.c
+SOURCES=ac-backend.c matcher-ac.c node-table.c main.c
 OBJECTS=$(SOURCES:.c=.o)
 TARGET=ac-test
 
