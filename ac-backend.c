@@ -7,17 +7,17 @@
 #include "ac-backend.h"
 
 // dummy verifier - used with idiots
-int dummy_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
+int dummy_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
 {
     return 1; // always a match (ac-tree verified)
 }
 
 // CS sequence verifier - used with CS patterns
-int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
+int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
 {
     off_t start;
 
-    if (pattern->maxdist > pattern->length) // and mode isn't case-insensitive
+    if (!(mode & AC_CASE_INSENSITIVE) && (pattern->maxdist > pattern->length))
         return 1;
 
     start = offset - pattern->maxdist + 1; /* adjust for trigger */
@@ -32,12 +32,12 @@ int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t bufl
 }
 
 // CI sequence verifier - used with CI (lowercase) patterns (usually with CI AC trees)
-int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
+int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
 {
     off_t start;
     uint16_t i;
 
-    if (pattern->maxdist > pattern->length) // and mode isn't case-sensitive
+    if ((mode & AC_CASE_INSENSITIVE) && pattern->maxdist > pattern->length)
         return 1;
 
     start = offset - pattern->maxdist + 1; /* adjust for trigger */
@@ -53,9 +53,10 @@ int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t bufl
 }
 
 
-AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen)
+AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, uint16_t mode, uint16_t options)
 {
     AC_PATTERN *new;
+    int i;
 
     if (!sig || slen <= 0)
         return NULL; // CL_EARG
@@ -68,19 +69,32 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
         free(new);
         return NULL; // CL_EMEM
     }
-    memcpy(new->pattern, sig, slen);
+
+    if (options & AC_CASE_INSENSITIVE) {
+        for (i = 0; i < slen; ++i)
+            new->pattern[i] = (uint8_t)tolower(sig[i]);
+        new->verify = ci_sequence_verifier;
+    } else {
+        memcpy(new->pattern, sig, slen);
+        new->verify = cs_sequence_verifier;
+    }
+
     new->length = slen;
     new->maxdist = *tlen;
 
-    new->verify = cs_sequence_verifier;
-
-    // trigger has no NULL termination
+    // trigger has no NULL termination, TODO - move trigger generation to matcher?
     if (trigger) {
-        if (slen > *tlen) {
-            memcpy(trigger, new->pattern, *tlen);
+        if (mode & AC_CASE_INSENSITIVE) {
+            if (slen <= *tlen)
+                *tlen = slen;
+
+            for (i = 0; i < *tlen; ++i)
+                trigger[i] = (uint8_t)tolower(new->pattern[i]);
         } else {
-            memcpy(trigger, new->pattern, slen);
-            *tlen = slen;
+            if (slen <= *tlen)
+                *tlen = slen;
+
+            memcpy(trigger, new->pattern, *tlen);
         }
     }
 

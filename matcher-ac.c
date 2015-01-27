@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +10,7 @@
 
 #define TRIGLENCAP 3
 
-int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode)
+int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mode)
 {
     matcher->mode = mode;
     matcher->mindepth = mindepth;
@@ -22,7 +23,7 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mod
     return 0;
 }
 
-int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length)
+int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, uint16_t options)
 {
     int i;
     uint16_t tlen = TRIGLENCAP;
@@ -30,7 +31,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length)
     AC_TABLE_NODE *track = matcher->root;
     AC_PATTERN *ac_pattern;
 
-    ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen);
+    ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, matcher->mode, options);
     if (!ac_pattern)
         return -1; // Error: CL_EMEM
 
@@ -100,19 +101,26 @@ int ac_resolve_links(AC_MATCHER *matcher)
 int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
 {
     unsigned int i, j;
+    uint8_t trans;
     AC_TABLE_NODE *current = matcher->root, *others;
 
     for (i = 0; i < buflen; ++i) {
         printf("ac_scanbuf: current node: %d\n", current->id);
 
+        // TODO: separate into different loops to reduce perfroming check on every cycle
+        if (matcher->mode & AC_CASE_INSENSITIVE)
+            trans = (uint8_t)tolower(buffer[i]);
+        else
+            trans = buffer[i];
+
         /* advance the node or fail */
-        if (current->table[buffer[i]]) {
-            current = current->table[buffer[i]];
+        if (current->table[trans]) {
+            current = current->table[trans];
         } else {
             while (current->fail) {
                 current = current->fail;
-                if (current->table[buffer[i]]) {
-                    current = current->table[buffer[i]];
+                if (current->table[trans]) {
+                    current = current->table[trans];
                     break;
                 }
             }
@@ -125,7 +133,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         if (current->patt_cnt) {
             printf("FOUND PATTERNS:\n");
             for (j = 0; j < current->patt_cnt; ++j) {
-                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i) == 1)
+                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1)
                     print_pattern(current->patterns[j], 1);
             }
         }
@@ -135,7 +143,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             if (others->patt_cnt) {
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
-                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i) == 1)
+                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1)
                         print_pattern(others->patterns[j], 1);
                 }
             }
