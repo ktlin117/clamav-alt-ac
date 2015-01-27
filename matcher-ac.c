@@ -7,7 +7,7 @@
 #include "ac-backend.h"
 #include "queue.h"
 
-#define TRIGLENCAP 256
+#define TRIGLENCAP 3
 
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode)
 {
@@ -125,7 +125,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         if (current->patt_cnt) {
             printf("FOUND PATTERNS:\n");
             for (j = 0; j < current->patt_cnt; ++j) {
-                if (current->patterns[j]->verify() == 1)
+                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i) == 1)
                     print_pattern(current->patterns[j], 1);
             }
         }
@@ -135,7 +135,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             if (others->patt_cnt) {
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
-                    if (others->patterns[j]->verify() == 1)
+                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i) == 1)
                         print_pattern(others->patterns[j], 1);
                 }
             }

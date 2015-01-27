@@ -20,18 +20,19 @@
 #define __AC_BACKEND_H__
 
 #include <stdint.h>
+#include <sys/types.h>
 
-typedef int (*verifier_cb)(); //trival verifer, add addtitional junk later
+typedef struct AC_PATTERN_ AC_PATTERN;
+typedef int (*verifier_cb)(AC_PATTERN *, const uint8_t *, size_t, off_t);
 // verifiers return 1 (CL_VIRUS) on match, 0 on no match, anything else is an error
 
-int default_verifier();
-
-typedef struct AC_PATTERN_ {
+struct AC_PATTERN_ {
     uint8_t *pattern;
     uint16_t length;
+    uint16_t maxdist; /* maximum path length for ac */
 
     verifier_cb verify;
-} AC_PATTERN;
+};
 
 AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen);
 // sig = to be parsed string, slen is lengh of sig, trigger is submission to ac tree, tlen is max storage, overwrite to used storage

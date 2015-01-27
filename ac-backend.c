@@ -1,14 +1,57 @@
 #include <ctype.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include "ac-backend.h"
 
-// default verifier
-int default_verifier()
+// dummy verifier - used with idiots
+int dummy_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
 {
     return 1; // always a match (ac-tree verified)
 }
+
+// CS sequence verifier - used with CS patterns
+int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
+{
+    off_t start;
+
+    if (pattern->maxdist > pattern->length) // and mode isn't case-insensitive
+        return 1;
+
+    start = offset - pattern->maxdist + 1; /* adjust for trigger */
+
+    if (start < 0 || start + pattern->length > buflen)
+        return 0;
+
+    if (!memcmp(pattern->pattern, buffer+start, pattern->length))
+        return 1;
+
+    return 0;
+}
+
+// CI sequence verifier - used with CI (lowercase) patterns (usually with CI AC trees)
+int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset)
+{
+    off_t start;
+    uint16_t i;
+
+    if (pattern->maxdist > pattern->length) // and mode isn't case-sensitive
+        return 1;
+
+    start = offset - pattern->maxdist + 1; /* adjust for trigger */
+
+    if (start < 0 || start + pattern->length > buflen)
+        return 0;
+
+    for (i = 0; i < pattern->length; ++i)
+        if ((uint8_t)tolower(buffer[start+i]) != pattern->pattern[i]) // assuming pattern is lowercase
+            return 0;
+
+    return 1;
+}
+
 
 AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen)
 {
@@ -27,8 +70,9 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
     }
     memcpy(new->pattern, sig, slen);
     new->length = slen;
+    new->maxdist = *tlen;
 
-    new->verify = default_verifier;
+    new->verify = cs_sequence_verifier;
 
     // trigger has no NULL termination
     if (trigger) {

@@ -16,7 +16,7 @@ int main()
     ac_resolve_links(&matcher);
     ac_print(&matcher);
 
-    ac_scanbuf(&matcher, (const uint8_t *)"take", 4);
+    ac_scanbuf(&matcher, (const uint8_t *)"take\0\0mimisoft", 14);
 
     ac_free(&matcher);
 
