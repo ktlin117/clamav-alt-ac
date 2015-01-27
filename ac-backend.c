@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,30 +10,35 @@ int default_verifier()
     return 1; // always a match (ac-tree verified)
 }
 
-//TODO - handle intermittent NULL characters
-AC_PATTERN *compile_pattern(const char *pattern, char *trigger, unsigned int trig_len)
+AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen)
 {
-    AC_PATTERN *new_patt;
+    AC_PATTERN *new;
 
-    if (!pattern) return NULL; // INVALID ARG
+    if (!sig || slen <= 0)
+        return NULL; // CL_EARG
 
-    new_patt = calloc(1, sizeof(AC_PATTERN));
-    if (!new_patt) return NULL; // OOM
+    new = calloc(1, sizeof(AC_PATTERN));
+    if (!new) return NULL; // CL_EMEM
 
-    new_patt->pattern = strdup(pattern);
-    if (!new_patt->pattern) {
-        free(new_patt);
-        return NULL; // OOM
+    new->pattern = calloc(slen, sizeof(uint8_t));
+    if (!new->pattern) {
+        free(new);
+        return NULL; // CL_EMEM
+    }
+    memcpy(new->pattern, sig, slen);
+    new->length = slen;
+
+    // trigger has no NULL termination
+    if (trigger) {
+        if (slen > *tlen) {
+            memcpy(trigger, new->pattern, *tlen);
+        } else {
+            memcpy(trigger, new->pattern, slen);
+            *tlen = slen;
+        }
     }
 
-    new_patt->verify = default_verifier;
-
-    if (trigger) { // if they want a trigger
-        memset(trigger, 0, trig_len);
-        strncpy(trigger, pattern, trig_len-1); // -1 to guarentee NULL-term
-    }
-
-    return new_patt;
+    return new;
 }
 
 void print_pattern(AC_PATTERN *pattern, int tab)
@@ -40,13 +46,22 @@ void print_pattern(AC_PATTERN *pattern, int tab)
     int i;
     char tabs[10] = {0};
 
-    if (!pattern) return; // INVALID ARG
+    if (!pattern) return; // CL_EARG
 
     if (tab > 9) tab = 9;
     for (i = 0; i < tab; ++i)
         tabs[i] = '\t';
 
-    printf("%s%s\n", tabs, pattern->pattern); // TODO - handle the intermitten NULLs
+    printf("%s", tabs);
+
+    for (i = 0; i < pattern->length; ++i) {
+        if (isprint((char)pattern->pattern[i]))
+            printf("%c", (char)pattern->pattern[i]);
+        else
+            printf("[%02x]", pattern->pattern[i]);
+    }
+
+    printf("\n");
 }
 
 int free_pattern(AC_PATTERN *pattern)

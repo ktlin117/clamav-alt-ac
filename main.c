@@ -7,10 +7,11 @@ int main()
     AC_MATCHER matcher;
 
     ac_init(&matcher, 0, 0, 0);
-    ac_add_pattern(&matcher, "take");
-    //ac_add_pattern(&matcher, "fast");
-    //ac_add_pattern(&matcher, "soft");
-    ac_add_pattern(&matcher, "ake");
+    ac_add_pattern(&matcher, "take", 4);
+    ac_add_pattern(&matcher, "fast", 4);
+    ac_add_pattern(&matcher, "soft", 4);
+    ac_add_pattern(&matcher, "ake", 3);
+    ac_add_pattern(&matcher, "\0\0\0\0a", 5);
 
     ac_resolve_links(&matcher);
     ac_print(&matcher);

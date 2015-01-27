@@ -33,7 +33,7 @@ typedef struct AC_MATCHER_ {
 } AC_MATCHER;
 
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint8_t mode);
-int ac_add_pattern(AC_MATCHER *matcher, const char *pattern);
+int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length);
 int ac_resolve_links(AC_MATCHER *matcher);
 int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen);
 int ac_free(AC_MATCHER *matcher);
