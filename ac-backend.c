@@ -28,6 +28,8 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
     memcpy(new->pattern, sig, slen);
     new->length = slen;
 
+    new->verify = default_verifier;
+
     // trigger has no NULL termination
     if (trigger) {
         if (slen > *tlen) {
@@ -67,7 +69,7 @@ void print_pattern(AC_PATTERN *pattern, int tab)
 int free_pattern(AC_PATTERN *pattern)
 {
     if (!pattern)
-        return -2; // INVALID ARG
+        return -2; // CL_EARG
 
     free(pattern->pattern);
     free(pattern);

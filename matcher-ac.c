@@ -89,7 +89,7 @@ int ac_resolve_links(AC_MATCHER *matcher)
                     break;
                 }
 
-                fail = fail->fail; /* skips first fail node (parent) */
+                fail = fail->fail;
             }
         }
     }
@@ -125,7 +125,8 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         if (current->patt_cnt) {
             printf("FOUND PATTERNS:\n");
             for (j = 0; j < current->patt_cnt; ++j) {
-                print_pattern(current->patterns[j], 1);
+                if (current->patterns[j]->verify() == 1)
+                    print_pattern(current->patterns[j], 1);
             }
         }
         /* check the fail nodes patterns too! */
@@ -134,7 +135,8 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             if (others->patt_cnt) {
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
-                    print_pattern(others->patterns[j], 1);
+                    if (others->patterns[j]->verify() == 1)
+                        print_pattern(others->patterns[j], 1);
                 }
             }
             others = others->fail;

@@ -69,12 +69,14 @@ int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern)
     AC_PATTERN **new_patterns;
 
     if (!node || !pattern)
-        return -2; // INVALID ARG
+        return -2; // CL_EARG
+
+    // TODO - check for overlapping patterns
 
     node->patt_cnt++;
     new_patterns = realloc(node->patterns, node->patt_cnt * sizeof(AC_PATTERN *));
     if (!new_patterns)
-        return -1; // OOM
+        return -1; // CL_EMEM
     new_patterns[node->patt_cnt-1] = pattern;
 
     node->patterns = new_patterns;
@@ -108,7 +110,6 @@ void delete_node_r(AC_TABLE_NODE *node)
     delete_node(node);
 }
 
-//TODO - tab depth?
 void print_node(AC_TABLE_NODE *node, int tab)
 {
     int i;
