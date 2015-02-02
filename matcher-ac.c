@@ -7,6 +7,7 @@
 #include "node-table.h"
 #include "ac-backend.h"
 #include "queue.h"
+#include "perf.h"
 
 #define TRIGLENCAP 3
 
@@ -19,6 +20,8 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
     matcher->root = new_node(mode);
     if (!matcher->root)
         return -1; // NODAL ISSUE, most likely OOM
+    matcher->all_patts = NULL;
+    matcher->patt_cnt = 0;
 
     return 0;
 }
@@ -29,7 +32,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
     uint16_t tlen = TRIGLENCAP;
     uint8_t trigger[TRIGLENCAP];
     AC_TABLE_NODE *track = matcher->root;
-    AC_PATTERN *ac_pattern;
+    AC_PATTERN *ac_pattern, **new_table;
 
     ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, matcher->mode, options);
     if (!ac_pattern)
@@ -40,6 +43,14 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
         if (!track)
             return -1; // NODAL ISSUE, most likely OOM
     }
+
+    // add pattern to the full list
+    matcher->patt_cnt++;
+    new_table = realloc(matcher->all_patts, matcher->patt_cnt * sizeof(AC_PATTERN *));
+    if (!new_table)
+        return -1; // Error: CL_EMEM
+    new_table[matcher->patt_cnt-1] = ac_pattern;
+    matcher->all_patts = new_table;
 
     // add pattern to final node
     return add_patt_node(track, ac_pattern); // TODO - check the error codes here?
@@ -133,8 +144,12 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         if (current->patt_cnt) {
             printf("FOUND PATTERNS:\n");
             for (j = 0; j < current->patt_cnt; ++j) {
-                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1)
+                event_start(&current->patterns[j]->vtime);
+                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1) {
+                    event_stop(&current->patterns[j]->vtime, 1);
                     print_pattern(current->patterns[j], 1);
+                }
+                event_stop(&current->patterns[j]->vtime, 0);
             }
         }
         /* check the fail nodes patterns too! */
@@ -143,8 +158,12 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             if (others->patt_cnt) {
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
-                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1)
+                    event_start(&current->patterns[j]->vtime);
+                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1) {
+                        event_stop(&current->patterns[j]->vtime, 1);
                         print_pattern(others->patterns[j], 1);
+                    }
+                    event_stop(&current->patterns[j]->vtime, 0);
                 }
             }
             others = others->fail;

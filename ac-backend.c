@@ -81,6 +81,7 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
 
     new->length = slen;
     new->maxdist = *tlen;
+    event_init(&new->vtime);
 
     // trigger has no NULL termination, TODO - move trigger generation to matcher?
     if (trigger) {

@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include "node-table.h"
+#include "ac-backend.h"
 
 typedef struct AC_MATCHER_ {
     uint16_t mode;
@@ -31,6 +32,8 @@ typedef struct AC_MATCHER_ {
     AC_TABLE_NODE **all_nodes;
     uint32_t node_cnt;
     */
+    AC_PATTERN **all_patts;
+    uint32_t patt_cnt;
 } AC_MATCHER;
 
 int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mode);

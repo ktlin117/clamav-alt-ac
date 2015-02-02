@@ -5,6 +5,10 @@
 #include "node-table.h"
 #include "ac-backend.h"
 
+const uint8_t buffer[] = "TAKE\0\0mimisoftTAkE\0\0mimisOftTAKE\0\0mimisoftTAKE\0\0mimisoftTAKE\0\0mimisoft";
+const unsigned int buflen = (sizeof(buffer)) / (sizeof(buffer[0]));
+void print_statistics(AC_MATCHER *matcher, struct event_t build, struct event_t scan);
+
 int main()
 {
     AC_MATCHER matcher;
@@ -28,14 +32,16 @@ int main()
 #endif
 
     event_start(&scan);
-    ac_scanbuf(&matcher, (const uint8_t *)"TAKE\0\0mimisoft", 14);
+    ac_scanbuf(&matcher, (const uint8_t *)buffer, buflen);
     event_stop(&scan, 1);
 
-    printf("Build Time Summary:\n");
-    event_summary(&build, 1);
+    //printf("Build Time Summary:\n");
+    //event_summary(&build, 1);
 
-    printf("Scan Time Summary:\n");
-    event_summary(&scan, 1);
+    //printf("Scan Time Summary:\n");
+    //event_summary(&scan, 1);
+
+    print_statistics(&matcher, build, scan);
 
     ac_free(&matcher);
 
@@ -55,4 +61,23 @@ int main()
     delete_node_r(root);
     */
     return 0;
+}
+
+void print_statistics(AC_MATCHER *matcher, struct event_t build, struct event_t scan)
+{
+    int i;
+
+    printf("Runtime Statistics:\n");
+    printf("%-20s%-20s%-20s%-20s%-20s%-20s\n", "event", "last [us]", "sum [us]", "match", "count", "average [us]");
+    printf("%-20s%-20s%-20s%-20s%-20s%-20s\n", "--------------", "--------------", "--------------",
+           "--------------", "--------------", "--------------"); 
+    printf("%-20s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "build", build.last, build.sum, build.match, 
+           build.count, build.count ? ((float)build.sum / (float)build.count) : 0);
+    printf("%-20s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "scan", scan.last, scan.sum, scan.match, 
+           scan.count, scan.count ? ((float)scan.sum / (float)scan.count) : 0);
+    for (i = 0; i < matcher->patt_cnt ; ++i) {
+        AC_PATTERN *patt = matcher->all_patts[i];
+        printf("%-19s %-20llu%-20llu%-20llu%-20llu%-20.2f\n", patt->pattern, patt->vtime.last, patt->vtime.sum, patt->vtime.match, 
+               patt->vtime.count, patt->vtime.count ? ((float)patt->vtime.sum / (float)patt->vtime.count) : 0);
+    }
 }

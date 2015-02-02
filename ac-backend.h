@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include "perf.h"
 
 /* dense debugging */
 //#define DENSE_DEBUG
@@ -44,6 +45,7 @@ struct AC_PATTERN_ {
     uint16_t maxdist; /* maximum path length for ac */
 
     verifier_cb verify;
+    struct event_t vtime;
 };
 
 AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, uint16_t mode, uint16_t options);
