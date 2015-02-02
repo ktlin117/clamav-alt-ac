@@ -21,15 +21,18 @@ int main()
     ac_add_pattern(&matcher, "ake", 3, AC_CASE_INSENSITIVE);
     ac_add_pattern(&matcher, "\0\0\0\0a", 5, AC_CASE_INSENSITIVE);
     ac_resolve_links(&matcher);
-    event_stop(&build);
+    event_stop(&build, 1);
 
+#ifdef DENSE_DEBUG
     ac_print(&matcher);
-    printf("Build Time Summary:\n");
-    event_summary(&build, 1);
+#endif
 
     event_start(&scan);
     ac_scanbuf(&matcher, (const uint8_t *)"TAKE\0\0mimisoft", 14);
-    event_stop(&scan);
+    event_stop(&scan, 1);
+
+    printf("Build Time Summary:\n");
+    event_summary(&build, 1);
 
     printf("Scan Time Summary:\n");
     event_summary(&scan, 1);

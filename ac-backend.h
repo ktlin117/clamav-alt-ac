@@ -20,7 +20,16 @@
 #define __AC_BACKEND_H__
 
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/types.h>
+
+/* dense debugging */
+//#define DENSE_DEBUG
+#ifdef DENSE_DEBUG
+#define ac_dense_debug(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define ac_dense_debug(...)
+#endif
 
 /* AC-MODES */
 #define AC_CASE_INSENSITIVE 0x1 /* case-sensitive is assumed */

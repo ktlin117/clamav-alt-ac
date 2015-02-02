@@ -23,6 +23,7 @@ struct event_t {
     int64_t start;
     int64_t last;
     int64_t sum;
+    int64_t match;
     int64_t count;
 
     int state;
@@ -30,7 +31,7 @@ struct event_t {
 
 void event_init(struct event_t *ev);
 void event_start(struct event_t *ev);
-void event_stop(struct event_t *ev);
+void event_stop(struct event_t *ev, int match);
 void event_summary(struct event_t *ev, int tab);
 
 #endif /* __PERF_H__ */

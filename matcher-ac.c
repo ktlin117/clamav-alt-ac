@@ -68,7 +68,7 @@ int ac_resolve_links(AC_MATCHER *matcher)
         STAILQ_REMOVE_HEAD(&head, entries);
         free(track);
 
-        printf("QUEUE ID: %d\n", current->id);
+        ac_dense_debug("QUEUE ID: %d\n", current->id);
 
         /* breadth-first */
         for (i = 0; i < current->tbl_cnt; ++i) {
@@ -105,7 +105,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
     AC_TABLE_NODE *current = matcher->root, *others;
 
     for (i = 0; i < buflen; ++i) {
-        printf("ac_scanbuf: current node: %d\n", current->id);
+        ac_dense_debug("ac_scanbuf: current node: %d\n", current->id);
 
         // TODO: separate into different loops to reduce perfroming check on every cycle
         if (matcher->mode & AC_CASE_INSENSITIVE)
@@ -127,7 +127,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             continue;
         }
 
-        printf("ac_scanbuf: move to node: %d\n", current->id);
+        ac_dense_debug("ac_scanbuf: move to node: %d\n", current->id);
 
         /* check the patterns Mason! */
         if (current->patt_cnt) {

@@ -15,6 +15,7 @@ void event_init(struct event_t *ev)
     ev->start = 0;
     ev->last = 0;
     ev->sum = 0;
+    ev->match = 0;
     ev->count = 0;
     ev->state = 0;
 }
@@ -29,7 +30,7 @@ void event_start(struct event_t *ev)
     ev->state = 1;
 }
 
-void event_stop(struct event_t *ev)
+void event_stop(struct event_t *ev, int match)
 {
     int64_t end;
     if (ev->state != 1)
@@ -39,6 +40,8 @@ void event_stop(struct event_t *ev)
 
     ev->last = end - ev->start;
     ev->sum += ev->last;
+    if (match)
+        ev->match++;
     ev->count++;
     ev->state = 0;
 }
@@ -53,8 +56,9 @@ void event_summary(struct event_t *ev, int tab)
     for (i = 0; i < tab; ++i)
         tabs[i] = '\t';
 
-    printf("%slast:   %llu us\n", tabs, ev->last);
-    printf("%sevents: %llu events\n", tabs, ev->count);
-    printf("%stotal:  %llu us\n", tabs, ev->sum);
-    printf("%savg:    %02.2f us\n", tabs, ev->count ? ((float)ev->sum / (float)ev->count) : 0);
+    printf("%slast:    %llu us\n", tabs, ev->last);
+    printf("%smatches: %llu events\n", tabs, ev->match);
+    printf("%sevents:  %llu events\n", tabs, ev->count);
+    printf("%stotal:   %llu us\n", tabs, ev->sum);
+    printf("%savg:     %02.2f us\n", tabs, ev->count ? ((float)ev->sum / (float)ev->count) : 0);
 }
