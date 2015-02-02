@@ -23,7 +23,7 @@ int main()
     ac_add_pattern(&matcher, "TAKE", 4, 0);
     ac_add_pattern(&matcher, "fast", 4, AC_CASE_INSENSITIVE);
     ac_add_pattern(&matcher, "soft", 4, AC_CASE_INSENSITIVE);
-    ac_add_pattern(&matcher, "ake", 3, AC_CASE_INSENSITIVE);
+    ac_add_pattern(&matcher, "ak", 2, AC_CASE_INSENSITIVE);
     ac_add_pattern(&matcher, "\0\0\0\0a", 5, AC_CASE_INSENSITIVE);
     ac_resolve_links(&matcher);
     event_stop(&build, 1);
