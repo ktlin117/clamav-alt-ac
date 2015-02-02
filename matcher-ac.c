@@ -145,7 +145,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             printf("FOUND PATTERNS:\n");
             for (j = 0; j < current->patt_cnt; ++j) {
                 event_start(&current->patterns[j]->vtime);
-                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1) {
+                if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
                     event_stop(&current->patterns[j]->vtime, 1);
                     print_pattern(current->patterns[j], 1);
                 }
@@ -159,7 +159,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
                     event_start(&current->patterns[j]->vtime);
-                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, matcher->mode) == 1) {
+                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
                         event_stop(&current->patterns[j]->vtime, 1);
                         print_pattern(others->patterns[j], 1);
                     }

@@ -7,20 +7,20 @@
 #include "ac-backend.h"
 
 // dummy verifier - used with idiots
-int dummy_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
+int dummy_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint32_t depth, uint16_t mode)
 {
     return 1; // always a match (ac-tree verified)
 }
 
 // CS sequence verifier - used with CS patterns
-int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
+int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint32_t depth, uint16_t mode)
 {
     off_t start;
 
-    if (!(mode & AC_CASE_INSENSITIVE) && (pattern->maxdist > pattern->length))
+    if (!(mode & AC_CASE_INSENSITIVE) && (depth > pattern->length))
         return 1;
 
-    start = offset - pattern->maxdist + 1; /* adjust for trigger */
+    start = offset - depth + 1; /* adjust for trigger */
 
     if (start < 0 || start + pattern->length > buflen)
         return 0;
@@ -32,15 +32,15 @@ int cs_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t bufl
 }
 
 // CI sequence verifier - used with CI (lowercase) patterns (usually with CI AC trees)
-int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint16_t mode)
+int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t buflen, off_t offset, uint32_t depth, uint16_t mode)
 {
     off_t start;
     uint16_t i;
 
-    if ((mode & AC_CASE_INSENSITIVE) && pattern->maxdist > pattern->length)
+    if ((mode & AC_CASE_INSENSITIVE) && depth > pattern->length)
         return 1;
 
-    start = offset - pattern->maxdist + 1; /* adjust for trigger */
+    start = offset - depth + 1; /* adjust for trigger */
 
     if (start < 0 || start + pattern->length > buflen)
         return 0;
@@ -80,7 +80,6 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
     }
 
     new->length = slen;
-    new->maxdist = *tlen;
     event_init(&new->vtime);
 
     // trigger has no NULL termination, TODO - move trigger generation to matcher?

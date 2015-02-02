@@ -36,13 +36,12 @@
 #define AC_CASE_INSENSITIVE 0x1 /* case-sensitive is assumed */
 
 typedef struct AC_PATTERN_ AC_PATTERN;
-typedef int (*verifier_cb)(AC_PATTERN *, const uint8_t *, size_t, off_t, uint16_t);
+typedef int (*verifier_cb)(AC_PATTERN *, const uint8_t *, size_t, off_t, uint32_t, uint16_t);
 // verifiers return 1 (CL_VIRUS) on match, 0 on no match, anything else is an error
 
 struct AC_PATTERN_ {
     uint8_t *pattern;
     uint16_t length;
-    uint16_t maxdist; /* maximum path length for ac */
 
     verifier_cb verify;
     struct event_t vtime;
