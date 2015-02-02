@@ -135,7 +135,6 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
                     break;
                 }
             }
-            continue;
         }
 
         ac_dense_debug("ac_scanbuf: move to node: %d\n", current->id);
@@ -158,12 +157,12 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
             if (others->patt_cnt) {
                 printf("FOUND OTHER PATTERNS:\n");
                 for (j = 0; j < others->patt_cnt; ++j) {
-                    event_start(&current->patterns[j]->vtime);
-                    if (others->patterns[j]->verify(current->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
-                        event_stop(&current->patterns[j]->vtime, 1);
+                    event_start(&others->patterns[j]->vtime);
+                    if (others->patterns[j]->verify(others->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
+                        event_stop(&others->patterns[j]->vtime, 1);
                         print_pattern(others->patterns[j], 1);
                     }
-                    event_stop(&current->patterns[j]->vtime, 0);
+                    event_stop(&others->patterns[j]->vtime, 0);
                 }
             }
             others = others->fail;

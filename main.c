@@ -6,7 +6,7 @@
 #include "node-table.h"
 #include "ac-backend.h"
 
-const uint8_t buffer[] = "TAKE\0\0mimisoftTAkE\0\0mimisOftTAKE\0\0mimisoftTAKE\0\0mimisoftTAKE\0\0mimisoft";
+const uint8_t buffer[] = "TAKE\0\0mimisoftTAkE\0\0mimisOftTAKE\0\0mimisoftTAKE\0\0mimisofttake\0\0mimisoft";
 const unsigned int buflen = (sizeof(buffer)) / (sizeof(buffer[0]));
 void print_statistics(AC_MATCHER *matcher, struct event_t build, struct event_t scan);
 
