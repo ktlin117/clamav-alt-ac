@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include "perf.h"
@@ -65,19 +66,32 @@ int main()
 
 void print_statistics(AC_MATCHER *matcher, struct event_t build, struct event_t scan)
 {
-    int i;
+    int i, j;
 
     printf("Runtime Statistics:\n");
-    printf("%-20s%-20s%-20s%-20s%-20s%-20s\n", "event", "last [us]", "sum [us]", "match", "count", "average [us]");
-    printf("%-20s%-20s%-20s%-20s%-20s%-20s\n", "--------------", "--------------", "--------------",
+    printf("%-40s%-20s%-20s%-20s%-20s%-20s\n", "event", "last [us]", "sum [us]", "match", "count", "average [us]");
+    printf("%-40s%-20s%-20s%-20s%-20s%-20s\n", "----------------------------", "--------------", "--------------",
            "--------------", "--------------", "--------------"); 
-    printf("%-20s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "build", build.last, build.sum, build.match, 
+    printf("%-40s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "build", build.last, build.sum, build.match, 
            build.count, build.count ? ((float)build.sum / (float)build.count) : 0);
-    printf("%-20s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "scan", scan.last, scan.sum, scan.match, 
+    printf("%-40s%-20llu%-20llu%-20llu%-20llu%-20.2f\n", "scan", scan.last, scan.sum, scan.match, 
            scan.count, scan.count ? ((float)scan.sum / (float)scan.count) : 0);
     for (i = 0; i < matcher->patt_cnt ; ++i) {
         AC_PATTERN *patt = matcher->all_patts[i];
-        printf("%-19s %-20llu%-20llu%-20llu%-20llu%-20.2f\n", patt->pattern, patt->vtime.last, patt->vtime.sum, patt->vtime.match, 
+        int sum = 0;
+
+        for (j = 0; j < patt->length; ++j) {
+            if (isprint((char)patt->pattern[j])) {
+                printf("%c", (char)patt->pattern[j]);
+                sum++;
+            } else {
+                printf("[%02x]", patt->pattern[j]);
+                sum+=4;
+            }
+        }
+        for (; sum < 40; sum++)
+            printf(" ");
+        printf("%-20llu%-20llu%-20llu%-20llu%-20.2f\n", patt->vtime.last, patt->vtime.sum, patt->vtime.match, 
                patt->vtime.count, patt->vtime.count ? ((float)patt->vtime.sum / (float)patt->vtime.count) : 0);
     }
 }

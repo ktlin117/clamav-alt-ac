@@ -177,6 +177,7 @@ int ac_free(AC_MATCHER *matcher)
 {
     if (!matcher) return -2; //INVALID ARG
     delete_node_r(matcher->root);
+    free(matcher->all_patts);
     return 0;
 }
 
