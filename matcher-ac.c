@@ -22,8 +22,11 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
     if (!matcher->root)
         return CL_EMEM;
 
-    matcher->all_nodes = NULL;
-    matcher->node_cnt = 0;
+    matcher->all_nodes = cli_calloc(1, sizeof(AC_TABLE_NODE *));
+    if (!matcher->all_nodes)
+        return CL_EMEM;
+    matcher->all_nodes[0] = matcher->root;
+    matcher->node_cnt = 1;
 
     matcher->all_patts = NULL;
     matcher->patt_cnt = 0;
