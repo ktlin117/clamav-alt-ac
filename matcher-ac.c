@@ -51,7 +51,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
         /* overloaded to insert to allnodes list */
         if (ret == CL_VIRUS) {
             matcher->node_cnt++;
-            new_nodes = realloc(matcher->all_nodes, matcher->node_cnt * sizeof(AC_TABLE_NODE *));
+            new_nodes = cli_realloc(matcher->all_nodes, matcher->node_cnt * sizeof(AC_TABLE_NODE *));
             if (!new_nodes)
                 return CL_EMEM;
             new_nodes[matcher->node_cnt-1] = track;
@@ -61,7 +61,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
 
     // add pattern to the full list
     matcher->patt_cnt++;
-    new_patts = realloc(matcher->all_patts, matcher->patt_cnt * sizeof(AC_PATTERN *));
+    new_patts = cli_realloc(matcher->all_patts, matcher->patt_cnt * sizeof(AC_PATTERN *));
     if (!new_patts)
         return CL_EMEM;
     new_patts[matcher->patt_cnt-1] = ac_pattern;
@@ -83,7 +83,7 @@ int ac_resolve_links(AC_MATCHER *matcher)
     int i;
 
     STAILQ_INIT(&head);
-    track = malloc(sizeof(struct entry));
+    track = cli_malloc(sizeof(struct entry));
     if (!track) return -1; //OOM
     track->node = matcher->root;
     STAILQ_INSERT_HEAD(&head, track, entries);
@@ -99,7 +99,7 @@ int ac_resolve_links(AC_MATCHER *matcher)
         /* breadth-first */
         for (i = 0; i < current->tbl_cnt; ++i) {
             if (current->table[i]) {
-                track = malloc(sizeof(struct entry));
+                track = cli_malloc(sizeof(struct entry));
                 if (!track) return -1; //OOM, TODO - memory freeing on failure
                 track->node = current->table[i];
                 STAILQ_INSERT_TAIL(&head, track, entries);
@@ -189,8 +189,12 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
 
 int ac_free(AC_MATCHER *matcher)
 {
+    int i;
+
     if (!matcher) return -2; //INVALID ARG
-    delete_node_r(matcher->root);
+    //delete_node_r(matcher->root);
+    for (i = 0; i < matcher->node_cnt; ++i)
+        delete_node(matcher->all_nodes[i]);
     free(matcher->all_nodes);
     free(matcher->all_patts);
     return 0;

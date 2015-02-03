@@ -10,4 +10,8 @@
 #define cli_dbgmsg(...) fprintf(stderr, __VA_ARGS__)
 #define cli_errmsg(...) fprintf(stderr, __VA_ARGS__)
 
+#define cli_malloc(size) malloc(size)
+#define cli_calloc(count, size) calloc(count, size)
+#define cli_realloc(ptr, size) realloc(ptr, size)
+
 #endif
