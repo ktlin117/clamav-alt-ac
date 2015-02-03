@@ -14,18 +14,26 @@ int main()
 {
     AC_MATCHER matcher;
     struct event_t build, scan;
+    int ret;
 
     event_init(&build);
     event_init(&scan);
 
     event_start(&build);
-    ac_init(&matcher, 0, 0, AC_CASE_INSENSITIVE);
-    ac_add_pattern(&matcher, "TAKE", 4, 0);
-    ac_add_pattern(&matcher, "fast", 4, AC_CASE_INSENSITIVE);
-    ac_add_pattern(&matcher, "soft", 4, AC_CASE_INSENSITIVE);
-    ac_add_pattern(&matcher, "ak", 2, AC_CASE_INSENSITIVE);
-    ac_add_pattern(&matcher, "\0\0\0\0a", 5, AC_CASE_INSENSITIVE);
-    ac_resolve_links(&matcher);
+    ret = ac_init(&matcher, 0, 0, AC_CASE_INSENSITIVE);
+    printf("ac_init ret: %d\n", ret);
+    ret = ac_add_pattern(&matcher, "TAKE", 4, 0);
+    printf("ac_add_pattern ret: %d\n", ret);
+    ret = ac_add_pattern(&matcher, "fast", 4, AC_CASE_INSENSITIVE);
+    printf("ac_add_pattern ret: %d\n", ret);
+    ret = ac_add_pattern(&matcher, "soft", 4, AC_CASE_INSENSITIVE);
+    printf("ac_add_pattern ret: %d\n", ret);
+    ret = ac_add_pattern(&matcher, "ak", 2, AC_CASE_INSENSITIVE);
+    printf("ac_add_pattern ret: %d\n", ret);
+    ret = ac_add_pattern(&matcher, "\0\0\0\0a", 5, AC_CASE_INSENSITIVE);
+    printf("ac_add_pattern ret: %d\n", ret);
+    ret = ac_resolve_links(&matcher);
+    printf("ac_resolve_links ret: %d\n", ret);
     event_stop(&build, 1);
 
 #ifdef DENSE_DEBUG
@@ -33,8 +41,9 @@ int main()
 #endif
 
     event_start(&scan);
-    ac_scanbuf(&matcher, (const uint8_t *)buffer, buflen);
+    ret = ac_scanbuf(&matcher, (const uint8_t *)buffer, buflen);
     event_stop(&scan, 1);
+    printf("ac_scanbuf ret: %d\n", ret);
 
     //printf("Build Time Summary:\n");
     //event_summary(&build, 1);
