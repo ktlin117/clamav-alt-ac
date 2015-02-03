@@ -116,6 +116,24 @@ int resolve_node(AC_TABLE_NODE *node)
     return 0;
 }
 
+AC_TABLE_NODE *advance_node(AC_TABLE_NODE *node, uint8_t trans)
+{
+    AC_TABLE_NODE *current = node;
+
+    if (current->table[trans]) {
+        current = current->table[trans];
+    } else {
+        while (current->fail) {
+            current = current->fail;
+            if (current->table[trans]) {
+                current = current->table[trans];
+                break;
+            }
+        }
+    }
+    return current;
+}
+
 void delete_node(AC_TABLE_NODE *node)
 {
     int i;

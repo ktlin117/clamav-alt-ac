@@ -142,18 +142,8 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         else
             trans = buffer[i];
 
-        /* advance the node or fail */
-        if (current->table[trans]) {
-            current = current->table[trans];
-        } else {
-            while (current->fail) {
-                current = current->fail;
-                if (current->table[trans]) {
-                    current = current->table[trans];
-                    break;
-                }
-            }
-        }
+        /* advance the node or fail - TODO: inline */
+        current = advance_node(current, trans);
 
         ac_dense_debug("ac_scanbuf: move to node: %d\n", current->id);
 
