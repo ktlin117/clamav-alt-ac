@@ -71,23 +71,23 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
     matcher->all_patts = new_patts;
 
     // add pattern to final node
-    return add_patt_node(track, ac_pattern); // TODO - check the error codes here?
+    return add_patt_node(track, ac_pattern); // TODO - check the error codes here (same pattern?)?
 }
 
 int ac_resolve_links(AC_MATCHER *matcher)
 {
+    int i, ret = CL_SUCCESS;
+    AC_TABLE_NODE *current, *fail;
     STAILQ_HEAD(stail_head, entry) head =
         STAILQ_HEAD_INITIALIZER(head);
     struct entry {
         AC_TABLE_NODE *node;
         STAILQ_ENTRY(entry) entries;
     } *track;
-    AC_TABLE_NODE *current, *fail;
-    int i;
 
     STAILQ_INIT(&head);
     track = cli_malloc(sizeof(struct entry));
-    if (!track) return -1; //OOM
+    if (!track) return CL_EMEM;
     track->node = matcher->root;
     STAILQ_INSERT_HEAD(&head, track, entries);
 
@@ -103,7 +103,10 @@ int ac_resolve_links(AC_MATCHER *matcher)
         for (i = 0; i < current->tbl_cnt; ++i) {
             if (current->table[i]) {
                 track = cli_malloc(sizeof(struct entry));
-                if (!track) return -1; //OOM, TODO - memory freeing on failure
+                if (!track) {
+                    ret = CL_EMEM;
+                    goto queue_cleanup;
+                }
                 track->node = current->table[i];
                 STAILQ_INSERT_TAIL(&head, track, entries);
             }
@@ -124,7 +127,14 @@ int ac_resolve_links(AC_MATCHER *matcher)
         }
     }
 
-    return 0;
+ queue_cleanup:
+    while (!STAILQ_EMPTY(&head)) {
+        track = STAILQ_FIRST(&head);
+        STAILQ_REMOVE_HEAD(&head, entries);
+        free(track);
+    }
+
+    return ret;
 }
 
 int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
