@@ -44,6 +44,8 @@ AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret);
 
 int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern);
 
+int resolve_node(AC_TABLE_NODE *node);
+
 void delete_node(AC_TABLE_NODE *node);
 void delete_node_r(AC_TABLE_NODE *node);
 void print_node(AC_TABLE_NODE *node, int tab);

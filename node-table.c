@@ -96,6 +96,26 @@ int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern)
     return 0;
 }
 
+int resolve_node(AC_TABLE_NODE *node)
+{
+    AC_TABLE_NODE *fail;
+
+    if (!node) return -2;
+    if (node->fail) {
+        fail = node->fail->fail; //skips parent node
+        while (fail) {
+            node->fail = fail;
+            if (fail->table[node->value]) {
+                node->fail = fail->table[node->value];
+                break;
+            }
+
+            fail = fail->fail;
+        }
+    }
+    return 0;
+}
+
 void delete_node(AC_TABLE_NODE *node)
 {
     int i;

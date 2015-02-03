@@ -77,7 +77,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
 int ac_resolve_links(AC_MATCHER *matcher)
 {
     int i, ret = CL_SUCCESS;
-    AC_TABLE_NODE *current, *fail;
+    AC_TABLE_NODE *current;
     STAILQ_HEAD(stail_head, entry) head =
         STAILQ_HEAD_INITIALIZER(head);
     struct entry {
@@ -113,18 +113,8 @@ int ac_resolve_links(AC_MATCHER *matcher)
         }
 
         /* resolve failure */
-        if (current->fail) {
-            fail = current->fail->fail; //skips parent node
-            while (fail) {
-                current->fail = fail;
-                if (fail->table[current->value]) {
-                    current->fail = fail->table[current->value];
-                    break;
-                }
-
-                fail = fail->fail;
-            }
-        }
+        if ((ret = resolve_node(current)) != CL_SUCCESS)
+            goto queue_cleanup;
     }
 
  queue_cleanup:
@@ -210,7 +200,7 @@ int ac_free(AC_MATCHER *matcher)
         delete_node(matcher->all_nodes[i]);
     free(matcher->all_nodes);
     free(matcher->all_patts);
-    return 0;
+    return CL_SUCCESS;
 }
 
 void ac_print(AC_MATCHER *matcher)
