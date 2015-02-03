@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include "ac-backend.h"
 
-typedef struct AC_TABLE_NODE_ {
+typedef struct AC_NODE_ {
     int id, depth;
     uint8_t mode;
     uint16_t value;
@@ -32,24 +32,24 @@ typedef struct AC_TABLE_NODE_ {
     uint32_t patt_cnt;
 
     /* paths */
-    struct AC_TABLE_NODE_ **table;
+    struct AC_NODE_ **table;
     uint16_t tbl_cnt;
 
-    struct AC_TABLE_NODE_ *fail;
-} AC_TABLE_NODE;
+    struct AC_NODE_ *fail;
+} AC_NODE;
 
-AC_TABLE_NODE *new_node(uint8_t mode);
-AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge);
-AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret);
+AC_NODE *new_node(uint8_t mode);
+AC_NODE *get_node(AC_NODE *parent, int edge);
+AC_NODE *get_or_insert_node(AC_NODE *parent, int edge, int *ret);
 
-int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern);
+int add_patt_node(AC_NODE *node, AC_PATTERN *pattern);
 
-int resolve_node(AC_TABLE_NODE *node);
-AC_TABLE_NODE *advance_node(AC_TABLE_NODE *node, uint8_t trans);
+int resolve_node(AC_NODE *node);
+AC_NODE *advance_node(AC_NODE *node, uint8_t trans);
 
-void delete_node(AC_TABLE_NODE *node);
-void delete_node_r(AC_TABLE_NODE *node);
-void print_node(AC_TABLE_NODE *node, int tab);
-void print_node_r(AC_TABLE_NODE *node, int tab);
+void delete_node(AC_NODE *node);
+void delete_node_r(AC_NODE *node);
+void print_node(AC_NODE *node, int tab);
+void print_node_r(AC_NODE *node, int tab);
 
 #endif /* __NODE_TABLE_H__ */

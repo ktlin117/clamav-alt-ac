@@ -7,9 +7,9 @@
 
 static int masterID = 0;
 
-AC_TABLE_NODE *new_node(uint8_t mode)
+AC_NODE *new_node(uint8_t mode)
 {
-    AC_TABLE_NODE *new_node = calloc(1, sizeof(AC_TABLE_NODE));
+    AC_NODE *new_node = calloc(1, sizeof(AC_NODE));
     if (!new_node)
         return NULL; //OOM
     new_node->id = masterID++;
@@ -17,7 +17,7 @@ AC_TABLE_NODE *new_node(uint8_t mode)
     new_node->mode = mode;
 
     /*** CASE-SENSITIVE ***/
-    new_node->table = calloc(256, sizeof(AC_TABLE_NODE *));
+    new_node->table = calloc(256, sizeof(AC_NODE *));
     if (!new_node->table) {
         free(new_node);
         return NULL; //OOM
@@ -30,7 +30,7 @@ AC_TABLE_NODE *new_node(uint8_t mode)
 }
 
 /* TODO - inline for speed */
-AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge)
+AC_NODE *get_node(AC_NODE *parent, int edge)
 {
     if (!parent) return NULL; //INVALID ARG
     if (edge > 0 && edge < parent->tbl_cnt)
@@ -38,9 +38,9 @@ AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge)
     return NULL;
 }
 
-AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret)
+AC_NODE *get_or_insert_node(AC_NODE *parent, int edge, int *ret)
 {
-    AC_TABLE_NODE *node;
+    AC_NODE *node;
 
     /* validate */
     if (!parent) {
@@ -77,7 +77,7 @@ AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret)
     return node;
 }
 
-int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern)
+int add_patt_node(AC_NODE *node, AC_PATTERN *pattern)
 {
     AC_PATTERN **new_patterns;
 
@@ -96,9 +96,9 @@ int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern)
     return 0;
 }
 
-int resolve_node(AC_TABLE_NODE *node)
+int resolve_node(AC_NODE *node)
 {
-    AC_TABLE_NODE *fail;
+    AC_NODE *fail;
 
     if (!node) return -2;
     if (node->fail) {
@@ -116,9 +116,9 @@ int resolve_node(AC_TABLE_NODE *node)
     return 0;
 }
 
-AC_TABLE_NODE *advance_node(AC_TABLE_NODE *node, uint8_t trans)
+AC_NODE *advance_node(AC_NODE *node, uint8_t trans)
 {
-    AC_TABLE_NODE *current = node;
+    AC_NODE *current = node;
 
     if (current->table[trans]) {
         current = current->table[trans];
@@ -134,7 +134,7 @@ AC_TABLE_NODE *advance_node(AC_TABLE_NODE *node, uint8_t trans)
     return current;
 }
 
-void delete_node(AC_TABLE_NODE *node)
+void delete_node(AC_NODE *node)
 {
     int i;
     /* patterns */
@@ -150,7 +150,7 @@ void delete_node(AC_TABLE_NODE *node)
     free(node);
 }
 
-void delete_node_r(AC_TABLE_NODE *node)
+void delete_node_r(AC_NODE *node)
 {
     int i;
     if (!node) return;
@@ -161,7 +161,7 @@ void delete_node_r(AC_TABLE_NODE *node)
     delete_node(node);
 }
 
-void print_node(AC_TABLE_NODE *node, int tab)
+void print_node(AC_NODE *node, int tab)
 {
     int i;
     char tabs[10] = {0};
@@ -202,7 +202,7 @@ void print_node(AC_TABLE_NODE *node, int tab)
     printf("%s--------------------------\n", tabs);
 }
 
-void print_node_r(AC_TABLE_NODE *node, int tab)
+void print_node_r(AC_NODE *node, int tab)
 {
     int i;
     if (!node) return;

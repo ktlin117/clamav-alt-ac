@@ -27,10 +27,10 @@ typedef struct AC_MATCHER_ {
     uint16_t mode;
     uint8_t mindepth, maxdepth;
 
-    AC_TABLE_NODE *root;
+    AC_NODE *root;
 
     /* Tracking */
-    AC_TABLE_NODE **all_nodes;
+    AC_NODE **all_nodes;
     uint32_t node_cnt;
 
     AC_PATTERN **all_patts;

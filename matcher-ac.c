@@ -22,7 +22,7 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
     if (!matcher->root)
         return CL_EMEM;
 
-    matcher->all_nodes = cli_calloc(1, sizeof(AC_TABLE_NODE *));
+    matcher->all_nodes = cli_calloc(1, sizeof(AC_NODE *));
     if (!matcher->all_nodes)
         return CL_EMEM;
     matcher->all_nodes[0] = matcher->root;
@@ -39,7 +39,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
     int i, ret;
     uint16_t tlen = TRIGLENCAP;
     uint8_t trigger[TRIGLENCAP];
-    AC_TABLE_NODE *track = matcher->root, **new_nodes;
+    AC_NODE *track = matcher->root, **new_nodes;
     AC_PATTERN *ac_pattern, **new_patts;
 
     ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, matcher->mode, options);
@@ -54,7 +54,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
         /* overloaded to insert to allnodes list */
         if (ret == CL_VIRUS) {
             matcher->node_cnt++;
-            new_nodes = cli_realloc(matcher->all_nodes, matcher->node_cnt * sizeof(AC_TABLE_NODE *));
+            new_nodes = cli_realloc(matcher->all_nodes, matcher->node_cnt * sizeof(AC_NODE *));
             if (!new_nodes)
                 return CL_EMEM;
             new_nodes[matcher->node_cnt-1] = track;
@@ -77,11 +77,11 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
 int ac_resolve_links(AC_MATCHER *matcher)
 {
     int i, ret = CL_SUCCESS;
-    AC_TABLE_NODE *current;
+    AC_NODE *current;
     STAILQ_HEAD(stail_head, entry) head =
         STAILQ_HEAD_INITIALIZER(head);
     struct entry {
-        AC_TABLE_NODE *node;
+        AC_NODE *node;
         STAILQ_ENTRY(entry) entries;
     } *track;
 
@@ -131,7 +131,7 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
 {
     unsigned int i, j;
     uint8_t trans;
-    AC_TABLE_NODE *current = matcher->root, *others;
+    AC_NODE *current = matcher->root, *others;
 
     for (i = 0; i < buflen; ++i) {
         ac_dense_debug("ac_scanbuf: current node: %d\n", current->id);

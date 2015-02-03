@@ -57,7 +57,7 @@ int main()
 
     /** Node Testing **/
     /*
-    AC_TABLE_NODE *root, *side;
+    AC_NODE *root, *side;
 
     root = new_node(17);
 
