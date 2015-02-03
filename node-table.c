@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "node-table.h"
+#include "compat.h"
 
 static int masterID = 0;
 
@@ -37,29 +38,41 @@ AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge)
     return NULL;
 }
 
-AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge)
+AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret)
 {
     AC_TABLE_NODE *node;
 
-    if (!parent) return NULL; //INVALID ARG
-    if (edge < 0 && edge >= parent->tbl_cnt)
-        return parent->table[edge]; //INVALID EDGE
+    /* validate */
+    if (!parent) {
+        if (ret) *ret = CL_ENULLARG;
+        return NULL;
+    }
+    if (edge < 0 && edge >= parent->tbl_cnt) {
+        if (ret) *ret = CL_EARG; // invalid edge
+        return NULL;
+    }
 
     /* get */
     node = get_node(parent, edge);
 
     /* insert */
     if (!node) {
+        // overloaded to signify tracking
+        if (ret) *ret = CL_VIRUS;
+
         node = new_node(parent->mode);
-        if (!node)
-            return NULL; //OOM
+        if (!node) {
+            if (ret) *ret = CL_EMEM;
+            return NULL;
+        }
 
         node->depth = parent->depth+1;
         node->value = edge;
         node->fail = parent;
 
         parent->table[edge] = node;
-    }
+    } else if (ret)
+        if (ret) *ret = CL_SUCCESS;
 
     return node;
 }

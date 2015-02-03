@@ -6,8 +6,9 @@
 #include "matcher-ac.h"
 #include "node-table.h"
 #include "ac-backend.h"
-#include "queue.h"
 #include "perf.h"
+#include "queue.h"
+#include "compat.h"
 
 #define TRIGLENCAP 3
 
@@ -19,7 +20,11 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
 
     matcher->root = new_node(mode);
     if (!matcher->root)
-        return -1; // NODAL ISSUE, most likely OOM
+        return CL_EMEM;
+
+    matcher->all_nodes = NULL;
+    matcher->node_cnt = 0;
+
     matcher->all_patts = NULL;
     matcher->patt_cnt = 0;
 
@@ -28,29 +33,39 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
 
 int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, uint16_t options)
 {
-    int i;
+    int i, ret;
     uint16_t tlen = TRIGLENCAP;
     uint8_t trigger[TRIGLENCAP];
-    AC_TABLE_NODE *track = matcher->root;
-    AC_PATTERN *ac_pattern, **new_table;
+    AC_TABLE_NODE *track = matcher->root, **new_nodes;
+    AC_PATTERN *ac_pattern, **new_patts;
 
     ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, matcher->mode, options);
     if (!ac_pattern)
-        return -1; // Error: CL_EMEM
+        return CL_EMEM; // Error: CL_EMEM
 
     for (i = 0; i < tlen; ++i) {
-        track = get_or_insert_node(track, trigger[i]);
-        if (!track)
-            return -1; // NODAL ISSUE, most likely OOM
+        track = get_or_insert_node(track, trigger[i], &ret);
+        if (ret != CL_SUCCESS && ret != CL_VIRUS)
+            return ret; //nodal issue
+
+        /* overloaded to insert to allnodes list */
+        if (ret == CL_VIRUS) {
+            matcher->node_cnt++;
+            new_nodes = realloc(matcher->all_nodes, matcher->node_cnt * sizeof(AC_TABLE_NODE *));
+            if (!new_nodes)
+                return CL_EMEM;
+            new_nodes[matcher->node_cnt-1] = track;
+            matcher->all_nodes = new_nodes;
+        }
     }
 
     // add pattern to the full list
     matcher->patt_cnt++;
-    new_table = realloc(matcher->all_patts, matcher->patt_cnt * sizeof(AC_PATTERN *));
-    if (!new_table)
-        return -1; // Error: CL_EMEM
-    new_table[matcher->patt_cnt-1] = ac_pattern;
-    matcher->all_patts = new_table;
+    new_patts = realloc(matcher->all_patts, matcher->patt_cnt * sizeof(AC_PATTERN *));
+    if (!new_patts)
+        return CL_EMEM;
+    new_patts[matcher->patt_cnt-1] = ac_pattern;
+    matcher->all_patts = new_patts;
 
     // add pattern to final node
     return add_patt_node(track, ac_pattern); // TODO - check the error codes here?
@@ -176,6 +191,7 @@ int ac_free(AC_MATCHER *matcher)
 {
     if (!matcher) return -2; //INVALID ARG
     delete_node_r(matcher->root);
+    free(matcher->all_nodes);
     free(matcher->all_patts);
     return 0;
 }

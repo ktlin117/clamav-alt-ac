@@ -40,7 +40,7 @@ typedef struct AC_TABLE_NODE_ {
 
 AC_TABLE_NODE *new_node(uint8_t mode);
 AC_TABLE_NODE *get_node(AC_TABLE_NODE *parent, int edge);
-AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge);
+AC_TABLE_NODE *get_or_insert_node(AC_TABLE_NODE *parent, int edge, int *ret);
 
 int add_patt_node(AC_TABLE_NODE *node, AC_PATTERN *pattern);
 

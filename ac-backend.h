@@ -23,11 +23,12 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include "perf.h"
+#include "compat.h"
 
 /* dense debugging */
 //#define DENSE_DEBUG
 #ifdef DENSE_DEBUG
-#define ac_dense_debug(...) fprintf(stderr, __VA_ARGS__)
+#define ac_dense_debug(...) cli_dbgmsg(__VA_ARGS__)
 #else
 #define ac_dense_debug(...)
 #endif
