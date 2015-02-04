@@ -114,6 +114,8 @@ int add_patt_node(AC_NODE *node, AC_PATTERN *pattern)
     return 0;
 }
 
+/* suboptimal because of repeats due to how the matcher calls this */
+/* TODO - separate recursive caller? */
 int resolve_node(AC_NODE *node)
 {
     AC_NODE *fail, *root;

@@ -52,7 +52,7 @@ int ac_init(AC_MATCHER *matcher, uint8_t mindepth, uint8_t maxdepth, uint16_t mo
     return 0;
 }
 
-int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, uint16_t options)
+int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, const uint32_t *lsigid, uint16_t options)
 {
     int i, ret;
     uint16_t tlen = TRIGLENCAP;
@@ -60,7 +60,7 @@ int ac_add_pattern(AC_MATCHER *matcher, const char *pattern, uint16_t length, ui
     AC_NODE *track = matcher->root, **new_nodes;
     AC_PATTERN *ac_pattern, **new_patts;
 
-    ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, matcher->mode, options);
+    ac_pattern = compile_pattern((uint8_t *)pattern, length, trigger, &tlen, lsigid, matcher->mode, options);
     if (!ac_pattern)
         return CL_EMEM; // Error: CL_EMEM
 
@@ -167,12 +167,16 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
 
         /* check the patterns Mason! */
         if (current->patt_cnt) {
+#ifdef DENSE_DEBUG
             printf("FOUND PATTERNS:\n");
+#endif
             for (j = 0; j < current->patt_cnt; ++j) {
                 event_start(&current->patterns[j]->vtime);
                 if (current->patterns[j]->verify(current->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
                     event_stop(&current->patterns[j]->vtime, 1);
+#ifdef DENSE_DEBUG
                     print_pattern(current->patterns[j], 1);
+#endif
                 }
                 event_stop(&current->patterns[j]->vtime, 0);
             }
@@ -181,12 +185,16 @@ int ac_scanbuf(AC_MATCHER *matcher, const uint8_t *buffer, unsigned int buflen)
         others = current->fail;
         while (others) {
             if (others->patt_cnt) {
+#ifdef DENSE_DEBUG
                 printf("FOUND OTHER PATTERNS:\n");
+#endif
                 for (j = 0; j < others->patt_cnt; ++j) {
                     event_start(&others->patterns[j]->vtime);
                     if (others->patterns[j]->verify(others->patterns[j], buffer, buflen, i, current->depth, matcher->mode) == 1) {
                         event_stop(&others->patterns[j]->vtime, 1);
+#ifdef DENSE_DEBUG
                         print_pattern(others->patterns[j], 1);
+#endif
                     }
                     event_stop(&others->patterns[j]->vtime, 0);
                 }

@@ -71,7 +71,7 @@ int ci_sequence_verifier(AC_PATTERN *pattern, const uint8_t *buffer, size_t bufl
 }
 
 
-AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, uint16_t mode, uint16_t options)
+AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, const uint32_t *lsigid, uint16_t mode, uint16_t options)
 {
     AC_PATTERN *new;
     int i;
@@ -97,6 +97,14 @@ AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger,
         new->verify = cs_sequence_verifier;
     }
 
+    if (lsigid) {
+        new->lsigid[0] = 1;
+        new->lsigid[1] = lsigid[0];
+        new->lsigid[2] = lsigid[1];
+    } else {
+        /* sigtool */
+        new->lsigid[0] = 0;
+    }
     new->length = slen;
     event_init(&new->vtime);
 
@@ -131,6 +139,8 @@ void print_pattern(AC_PATTERN *pattern, int tab)
         tabs[i] = '\t';
 
     printf("%s", tabs);
+    if (pattern->lsigid[0])
+        printf("[%u, %u] ", pattern->lsigid[1], pattern->lsigid[2]);
 
     for (i = 0; i < pattern->length; ++i) {
         if (isprint((char)pattern->pattern[i]))

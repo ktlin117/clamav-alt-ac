@@ -43,12 +43,13 @@ typedef int (*verifier_cb)(AC_PATTERN *, const uint8_t *, size_t, off_t, uint32_
 struct AC_PATTERN_ {
     uint8_t *pattern;
     uint16_t length;
+    uint32_t lsigid[3];
 
     verifier_cb verify;
     struct event_t vtime;
 };
 
-AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, uint16_t mode, uint16_t options);
+AC_PATTERN *compile_pattern(const uint8_t *sig, uint16_t slen, uint8_t *trigger, uint16_t *tlen, const uint32_t *lsigid, uint16_t mode, uint16_t options);
 // sig = to be parsed string, slen is lengh of sig, trigger is submission to ac tree, tlen is max storage, overwrite to used storage
 void print_pattern(AC_PATTERN *pattern, int tab);
 int free_pattern(AC_PATTERN *pattern);

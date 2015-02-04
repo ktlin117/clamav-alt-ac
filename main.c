@@ -24,7 +24,7 @@
 #include "node-table.h"
 #include "ac-backend.h"
 
-const uint8_t buffer[] = "TAKE\0\0mimisoftTAkE\0\0mimisOftTAKE\0\0mimisoftTAKE\0\0mimisofttake\0\0mimisoft";
+const uint8_t buffer[] = "TAKE\0\0mimisoftTAkE\0\0mimisOftTAKE\0\0mimisoftTAKE\0\0\0\0amimisofttake\0\0mimisoft";
 const unsigned int buflen = (sizeof(buffer)) / (sizeof(buffer[0]));
 void print_statistics(AC_MATCHER *matcher, struct event_t build, struct event_t scan);
 
@@ -33,6 +33,7 @@ int main()
     AC_MATCHER matcher;
     struct event_t build, scan;
     int ret;
+    uint32_t lsigid[2] = { 0 };
 
     event_init(&build);
     event_init(&scan);
@@ -40,15 +41,15 @@ int main()
     event_start(&build);
     ret = ac_init(&matcher, 0, 0, AC_CASE_INSENSITIVE);
     printf("ac_init ret: %d\n", ret);
-    ret = ac_add_pattern(&matcher, "TAKE", 4, 0);
+    ret = ac_add_pattern(&matcher, "TAKE", 4, lsigid, 0);
     printf("ac_add_pattern ret: %d\n", ret);
-    ret = ac_add_pattern(&matcher, "fast", 4, AC_CASE_INSENSITIVE);
+    ret = ac_add_pattern(&matcher, "fast", 4, lsigid, AC_CASE_INSENSITIVE);
     printf("ac_add_pattern ret: %d\n", ret);
-    ret = ac_add_pattern(&matcher, "soft", 4, AC_CASE_INSENSITIVE);
+    ret = ac_add_pattern(&matcher, "soft", 4, lsigid, AC_CASE_INSENSITIVE);
     printf("ac_add_pattern ret: %d\n", ret);
-    ret = ac_add_pattern(&matcher, "ak", 2, AC_CASE_INSENSITIVE);
+    ret = ac_add_pattern(&matcher, "ak", 2, lsigid, AC_CASE_INSENSITIVE);
     printf("ac_add_pattern ret: %d\n", ret);
-    ret = ac_add_pattern(&matcher, "\0\0\0\0a", 5, AC_CASE_INSENSITIVE);
+    ret = ac_add_pattern(&matcher, "\0\0\0\0a", 5, lsigid, AC_CASE_INSENSITIVE);
     printf("ac_add_pattern ret: %d\n", ret);
     ret = ac_resolve_links(&matcher);
     printf("ac_resolve_links ret: %d\n", ret);
